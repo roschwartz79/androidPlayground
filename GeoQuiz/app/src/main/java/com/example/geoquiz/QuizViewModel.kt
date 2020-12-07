@@ -2,8 +2,6 @@ package com.example.geoquiz
 
 import androidx.lifecycle.ViewModel
 
-private const val TAG = "QuizViewModel"
-
 class QuizViewModel : ViewModel() {
 
     private val questionBank = listOf(
@@ -16,6 +14,7 @@ class QuizViewModel : ViewModel() {
     )
 
     var currentIndex = 0
+    var isCheater = false
 
     val currentQuestionAnswer: Boolean
         get() = questionBank[currentIndex].answer
