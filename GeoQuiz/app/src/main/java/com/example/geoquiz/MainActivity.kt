@@ -1,8 +1,10 @@
 package com.example.geoquiz
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +15,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 
@@ -50,11 +53,17 @@ class MainActivity : AppCompatActivity() {
         cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.question_text_view)
 
-        cheatButton.setOnClickListener{
+        cheatButton.setOnClickListener{view ->
             // start the cheat activity
-            val answerIsTrue = quizViewModel.currentQuestionAnswer
-            val intent = CheatActivity.newIntent(this, answerIsTrue)
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+                val answerIsTrue = quizViewModel.currentQuestionAnswer
+                val intent = CheatActivity.newIntent(this, answerIsTrue)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val options =
+                        ActivityOptions.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                    startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
+                } else {
+                    startActivityForResult(intent, REQUEST_CODE_CHEAT)
+                }
         }
 
         trueButton.setOnClickListener { view: View ->
@@ -72,8 +81,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         questionTextView.setOnClickListener {
-            quizViewModel.currentQuestionText
+            quizViewModel.moveToNext()
+            //quizViewModel.currentQuestionText
             updateQuestion()
+            falseButton.isEnabled = true
+            trueButton.isEnabled = true
+            cheatButton.isEnabled = true
+            quizViewModel.isCheater = false
         }
 
         nextButton.setOnClickListener {
