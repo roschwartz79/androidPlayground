@@ -109,7 +109,7 @@ class CrimeListFragment: Fragment() {
             Log.d(TAG, "onBindViewHolder hit")
             val crime = crimes[position]
             holder.bind(crime)
-         }
+        }
 
     }
 }
