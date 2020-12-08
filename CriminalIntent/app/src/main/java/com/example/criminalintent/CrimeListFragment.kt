@@ -80,18 +80,49 @@ class CrimeListFragment: Fragment() {
         }
     }
 
+    // We need another holder for the police button extra!
+    private inner class CrimeHolderPolice(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener{
+        private lateinit var crime: Crime
+
+        val titleTextView: TextView = view.findViewById(R.id.crime_title)
+        val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        fun bind(crime: Crime) {
+            this.crime = crime
+            titleTextView.text = this.crime.title
+            dateTextView.text = this.crime.date.toString()
+        }
+
+        override fun onClick(v : View){
+            Toast.makeText(context, "${crime.title} pressed police!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     // We create an adapter to interface between the model data and the recycler view. To start, we pass it the model data
     // Then it returns an instance of the adapater that knows all about the data and what view to format
-    private inner class CrimeAdapter(var crimes: List<Crime>): RecyclerView.Adapter<CrimeHolder>(){
+    private inner class CrimeAdapter(var crimes: List<Crime>): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+
+        private val TYPE_NOPOLICE: Int = 0
+        private val TYPE_POLICE: Int = 1
 
         // get the layout we want to create, populate the view and then pass the view to a new crime holder object
         // we return a view packaged up nicely that contains the layout we want
         // We will only need a limited amount, RecyclerView reuses the views when they scroll instead of creating new ones
         // with onCreateViewHolder and instead reuses previously made instances! How convenient
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             Log.d(TAG, "onCreateViewHolder hit")
-            val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
-            return CrimeHolder(view)
+            if (viewType == TYPE_NOPOLICE){
+                val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
+                return CrimeHolder(view)
+            }
+                val view = layoutInflater.inflate(R.layout.list_item_crime_police, parent, false)
+                return CrimeHolderPolice(view)
+
+
         }
 
         // so the recycler view knows how many items are in the dataset,
@@ -102,14 +133,25 @@ class CrimeListFragment: Fragment() {
 
         // will populate a given holder with the crime title and date from a given position, a param. We get the crime from the crime
         // list at a specified position, which is called on from the RecyclerView
-
         // Onbind is called when we are updating text, recycling the view from one view that has now scrolled off the screen!
-        override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             //get a crime at the specified position and apply the text to the textViews
             Log.d(TAG, "onBindViewHolder hit")
             val crime = crimes[position]
-            holder.bind(crime)
+            if (getItemViewType(position) == TYPE_NOPOLICE){
+                holder.bind(crime) as CrimeHolder
+            }
+            else {
+                holder.bind(crime)
+            }
          }
+
+        override fun getItemViewType(position: Int): Int {
+            if (crimes[position].requiresPolice){
+                return TYPE_POLICE
+            }
+            return TYPE_NOPOLICE
+        }
 
     }
 }
