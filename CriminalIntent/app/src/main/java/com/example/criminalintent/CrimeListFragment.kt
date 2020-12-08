@@ -115,22 +115,21 @@ class CrimeListFragment: Fragment() {
     // Then it returns an instance of the adapater that knows all about the data and what view to format
     private inner class CrimeAdapter(var crimes: List<Crime>): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-        private val TYPE_NOPOLICE: Int = 0
-        private val TYPE_POLICE: Int = 1
+        private val TYPE_NOPOLICE: Int = 1
+        private val TYPE_POLICE: Int = 2
 
         // get the layout we want to create, populate the view and then pass the view to a new crime holder object
         // we return a view packaged up nicely that contains the layout we want
         // We will only need a limited amount, RecyclerView reuses the views when they scroll instead of creating new ones
         // with onCreateViewHolder and instead reuses previously made instances! How convenient
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            Log.d(TAG, "onCreateViewHolder hit")
+            Log.d(TAG, "onCreateViewHolder hit with $viewType")
             if (viewType == TYPE_NOPOLICE){
                 val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
                 return CrimeHolder(view)
             }
                 val view = layoutInflater.inflate(R.layout.list_item_crime_police, parent, false)
                 return CrimeHolderPolice(view)
-
 
         }
 
