@@ -36,7 +36,11 @@ class CrimeListFragment: Fragment() {
     }
 
     // When the fragment is called to be created from Mainactivity
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
@@ -57,6 +61,7 @@ class CrimeListFragment: Fragment() {
 
     // This inner class takes a view as a param and adds the title and data text view that will
     // be populated in the recyclerview! Kind of tricky
+
     // We also implement the OnClickListener in the holder, where the view itself is responding to click events
     // We then perform the action we want in the onClick function we have overridden
     private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener{
@@ -75,7 +80,7 @@ class CrimeListFragment: Fragment() {
             dateTextView.text = this.crime.date.toString()
         }
 
-        override fun onClick(v : View){
+        override fun onClick(v: View){
             Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -84,8 +89,9 @@ class CrimeListFragment: Fragment() {
     private inner class CrimeHolderPolice(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener{
         private lateinit var crime: Crime
 
-        val titleTextView: TextView = view.findViewById(R.id.crime_title)
+        val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
         val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
+        val policeButton: Button = itemView.findViewById(R.id.police_button)
 
         init {
             itemView.setOnClickListener(this)
@@ -95,9 +101,12 @@ class CrimeListFragment: Fragment() {
             this.crime = crime
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
+            policeButton.setOnClickListener {
+                Toast.makeText(context, "Pressed crime button #${crime.title}", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        override fun onClick(v : View){
+        override fun onClick(v: View){
             Toast.makeText(context, "${crime.title} pressed police!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -139,10 +148,13 @@ class CrimeListFragment: Fragment() {
             Log.d(TAG, "onBindViewHolder hit")
             val crime = crimes[position]
             if (getItemViewType(position) == TYPE_NOPOLICE){
-                holder.bind(crime) as CrimeHolder
+                // holder.bind as CrimeHolder
+                val crimeHolder: CrimeHolder = holder as CrimeHolder
+                crimeHolder.bind(crime)
             }
             else {
-                holder.bind(crime)
+                val crimeHolderPolice: CrimeHolderPolice = holder as CrimeHolderPolice
+                crimeHolderPolice.bind(crime)
             }
          }
 
