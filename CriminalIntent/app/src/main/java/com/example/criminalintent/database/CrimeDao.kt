@@ -1,6 +1,7 @@
 package com.example.criminalintent.database
 
 import androidx.lifecycle.LiveData
+import androidx.room.Dao
 import androidx.room.Query
 import com.example.criminalintent.Crime
 import java.util.*
@@ -14,6 +15,7 @@ import java.util.*
  * the listeners know the data is ready
  */
 
+@Dao
 interface CrimeDao {
 
     // First we write a sql statement that will get all of the crimes

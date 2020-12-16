@@ -7,6 +7,6 @@ private const val TAG = "CrimeListViewModel"
 class CrimeListViewModel: ViewModel() {
 
     private val crimeRepository = CrimeRepository.get()
-    val crimesListLiveData = crimeRepository.getCrimes()
+    val crimeListLiveData = crimeRepository.getCrimes()
 
 }

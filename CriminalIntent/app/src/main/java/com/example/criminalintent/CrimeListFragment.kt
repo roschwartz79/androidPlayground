@@ -1,5 +1,6 @@
 package com.example.criminalintent
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,13 +11,22 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
 private const val TAG = "ClassListFragment"
 
 class CrimeListFragment: Fragment() {
+
+    interface Callbacks {
+        fun onCrimeSelected(crimeId:UUID)
+    }
+
+    private var callbacks: Callbacks? = null
 
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
@@ -31,15 +41,47 @@ class CrimeListFragment: Fragment() {
         }
     }
 
+    // This is called when a fragment is attached to an activity
+    // We store the context passed to the fragment from the activity in the callback, which is MainActivity
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    // here we set the callback to null in teh on detach lifecycle function, after its detached
+    // we cant access the fragment anymore
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
     // When the fragment is called to be created from Mainactivity
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
-        crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
+        crimeRecyclerView =
+            view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        // return the view we have created with the fragment
+        crimeRecyclerView.adapter = adapter
         return view
+    }
+
+    // When the view is created, we use the .observe function to register an observer on our LiveData.
+    // This ties the life of the observation and the component (the fragment) together
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        crimeListViewModel.crimeListLiveData.observe(
+            // The lifecycleowner manages the lifecycle of the observer by following the lifecycle of the android component. Here, the fragment.
+            viewLifecycleOwner,
+            // this parameter is an Observer implementation. It reacts to new data from LiveData
+            // In our case this code block is executed when the list of crimes gets updated, e.g. the data within LD changes
+            Observer { crimes ->
+                crimes?.let {
+                    Log.i(TAG, "Got crimes ${crimes.size}")
+                    updateUI(crimes)
+                }
+            }
+        )
     }
 
     // this function updates the view. Get the crime list, create a new adapter and then add the adapter to the Recyclerview instance
@@ -75,7 +117,8 @@ class CrimeListFragment: Fragment() {
         }
 
         override fun onClick(v : View){
-            Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "${crime.title} pressed!!", Toast.LENGTH_SHORT).show()
+            callbacks?.onCrimeSelected(crime.id)
         }
     }
 

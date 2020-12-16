@@ -15,23 +15,29 @@ import java.util.*
  * which overrides the Application onCreate method to create a new instance of the repo
  */
 
-private const val DATABASE_NAME: "crime-database"
+private const val DATABASE_NAME = "crime-database";
+
 
 class CrimeRepository private constructor(context:Context){
 
     // Here we have a concrete implementation of the CrimeDatabase, which is specified as abstract
     // The app context will live longer than any of the activities, but you could pass an instance of
     // an activities context.... I think
-    private val database: CrimeDatabase = Room.databaseBuilder(context.applicationContext,
-                                                        CrimeDatabase::class.java,
-                                                        DATABASE_NAME).build()
+    private val database : CrimeDatabase = Room.databaseBuilder(context.applicationContext, CrimeDatabase::class.java, DATABASE_NAME).build()
 
     // Here is an instance of crimeDao we will use to access the Database
     private val crimeDao: CrimeDao = database.crimeDao()
 
+
+
+
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
 
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
+
+
+
+
 
     // These functions make it a singleton. The constructor for this class is private so there can't
     // be any rogue components and create new instances of the repo class.
@@ -48,8 +54,7 @@ class CrimeRepository private constructor(context:Context){
         // here we can access the repository
         fun get(): CrimeRepository {
             return INSTANCE ?:
-                throw IllegalStateException("CrimeRepository must be initialized.")
+            throw IllegalStateException("CrimeRepository must be initialized.")
             }
-        }
     }
 }
